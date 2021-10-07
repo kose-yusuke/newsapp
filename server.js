@@ -1,17 +1,25 @@
+//サーバーはexpress
 const express = require("express");
+const bodyParser = require("body-parser");
+
 const app = express();
 
-const NewsAPI = require('newsapi');
-const newsapi = new NewsAPI('9e116a9dc7ac451c91d21c54146b6a54');
-// To query /v2/top-headlines
-// All options passed to topHeadlines are optional, but you need to include at least one of them
-app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"));
-app.get("/data", (req, res) => {
-    newsapi.v2.topHeadlines({
-      country: 'us',
-      category: 'business',
-      pageSize: 40
-    }).then(news => res.send(news));
-  });
-  
-  app.listen(3000, () => console.log('listening on port ' + 3000));
+//静的ファイルの利用
+app.use(express.static('public'))
+
+//EJSテンプレートエンジンの利用
+
+app.set('views', './src/views')
+app.set('view engine', 'ejs')
+
+//POSTデータの受け取り(body-parser)
+app.use(express.urlencoded({extended: true})); 
+
+// Routes
+const newsRouter = require('./src/routes/news')
+
+app.use('/', newsRouter)
+app.use('/article', newsRouter)
+
+
+app.listen(3000, () => console.log('listening on port ' + 3000));
